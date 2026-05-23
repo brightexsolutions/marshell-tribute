@@ -2,7 +2,8 @@ export const siteConfig = {
   name: "Marshell Okatch",
   // TODO: Update with the correct years
   born: "19XX",
-  died: "2025",
+  died: "2026",
+  burial: "June 5, 2026",
   heroImage: "/images/marshell-primary.jpg",
   // TODO: Replace with Marshell's biography
   bio: `Marshell Okatch was a beloved friend, family member, and community pillar whose warmth and kindness touched everyone he met.

@@ -37,6 +37,11 @@ export function HeroSection({ primaryImageUrl }: HeroSectionProps) {
             {siteConfig.born} – {siteConfig.died}
           </p>
         )}
+        {siteConfig.burial && (
+          <p className="mt-1 text-sm font-sans font-light text-white/60 tracking-wide">
+            Burial: {siteConfig.burial}
+          </p>
+        )}
       </div>
     </div>
   );

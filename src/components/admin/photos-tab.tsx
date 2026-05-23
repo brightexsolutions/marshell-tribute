@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Loader2, Star, Trash2, Upload, ImageOff } from "lucide-react";
 import { toast } from "sonner";
@@ -182,14 +181,13 @@ export function PhotosTab() {
             {photos.map((photo) => (
               <div
                 key={photo.id}
-                className="relative group aspect-square rounded-lg overflow-hidden border border-border"
+                className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted"
               >
-                <Image
+                {/* plain img — no next/image hostname restriction in admin */}
+                <img
                   src={photo.url}
                   alt="Gallery photo"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="w-full h-full object-cover"
                 />
 
                 {/* Primary badge */}

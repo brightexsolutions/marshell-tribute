@@ -16,17 +16,16 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
   const handleDownload = async () => {
     setGenerating(true);
     try {
-      const { default: jsPDF } = await import("jspdf");
-      await import("jspdf-autotable");
+      // Dynamic imports keep these browser-only libraries out of the server bundle
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
 
-      const doc = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const generatedAt = formatDateTime(new Date().toISOString());
       const dateSlug = new Date().toISOString().slice(0, 10);
+      const generatedAt = formatDateTime(new Date().toISOString());
+
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
@@ -34,34 +33,27 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.text(`Generated: ${generatedAt}  |  Total tributes: ${tributes.length}`, 14, 23);
+      doc.setTextColor(100);
+      doc.text(
+        `Generated: ${generatedAt}  |  Total tributes: ${tributes.length}`,
+        14,
+        23
+      );
+      doc.setTextColor(0);
 
-      const head = [["#", "Name", "Relationship", "Contact", "Message", "Date Submitted"]];
-      const body = tributes.map((t, i) => [
-        String(i + 1),
-        t.is_anonymous || !t.name ? "Anonymous" : t.name,
-        t.relationship ?? "—",
-        t.contact ?? "—",
-        t.message,
-        formatDateTime(t.created_at),
-      ]);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (doc as any).autoTable({
-        head,
-        body,
+      autoTable(doc, {
+        head: [["#", "Name", "Relationship", "Contact", "Message", "Date Submitted"]],
+        body: tributes.map((t, i) => [
+          String(i + 1),
+          t.is_anonymous || !t.name ? "Anonymous" : t.name,
+          t.relationship ?? "—",
+          t.contact ?? "—",
+          t.message,
+          formatDateTime(t.created_at),
+        ]),
         startY: 28,
-        styles: {
-          font: "helvetica",
-          fontSize: 9,
-          cellPadding: 3,
-          valign: "top",
-        },
-        headStyles: {
-          fillColor: [30, 30, 35],
-          textColor: 255,
-          fontStyle: "bold",
-        },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 3, valign: "top" },
+        headStyles: { fillColor: [30, 30, 35], textColor: 255, fontStyle: "bold" },
         columnStyles: {
           0: { cellWidth: 10 },
           1: { cellWidth: 32 },
@@ -70,10 +62,9 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
           4: { cellWidth: "auto" },
           5: { cellWidth: 42 },
         },
-        didDrawPage: (data: { pageNumber: number; doc: typeof doc }) => {
+        didDrawPage: (data) => {
           const pageCount = doc.getNumberOfPages();
           doc.setFontSize(8);
-          doc.setFont("helvetica", "normal");
           doc.setTextColor(150);
           doc.text(
             `Page ${data.pageNumber} of ${pageCount}`,
@@ -81,10 +72,13 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
             doc.internal.pageSize.getHeight() - 8,
             { align: "center" }
           );
+          doc.setTextColor(0);
         },
       });
 
       doc.save(`marshell-tributes-${dateSlug}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
     } finally {
       setGenerating(false);
     }

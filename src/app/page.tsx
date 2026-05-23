@@ -5,8 +5,7 @@ import { siteConfig } from "@/config/site";
 import { galleryImages as staticGalleryImages } from "@/config/images";
 import type { GalleryImage } from "@/config/images";
 
-// Revalidate every 60 seconds for near-real-time content updates
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 interface PageData {
   count: number;

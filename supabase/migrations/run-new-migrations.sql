@@ -48,6 +48,14 @@ CREATE POLICY "site_content_select_public"
 
 
 -- ── Storage bucket ───────────────────────────────────────────
--- Create the storage bucket manually in the Supabase Dashboard:
+-- If you haven't created the bucket yet:
 --   Storage → New Bucket → Name: marshell-gallery → Public: ON
+--
+-- If you already created it WITHOUT Public enabled, run this:
+UPDATE storage.buckets SET public = true WHERE id = 'marshell-gallery';
+
+-- Public read policy so uploaded images are accessible via URL
+CREATE POLICY IF NOT EXISTS "Gallery public read"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'marshell-gallery');
 -- ============================================================
