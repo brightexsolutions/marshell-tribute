@@ -1,4 +1,4 @@
-import { TributesTable } from "@/components/admin/tributes-table";
+import { AdminTabs } from "@/components/admin/admin-tabs";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { Tribute } from "@/types/database";
 
@@ -24,7 +24,7 @@ export default async function AdminTablePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <TributesTable tributes={tributes} />
+        <AdminTabs tributes={tributes} />
       </div>
     </div>
   );

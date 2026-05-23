@@ -11,10 +11,10 @@ interface TributeCardProps {
 
 export function TributeCard({ tribute }: TributeCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const displayName = tribute.is_anonymous || !tribute.name
-    ? "Anonymous"
-    : tribute.name;
-  const initial = displayName === "Anonymous" ? null : displayName[0].toUpperCase();
+  const displayName =
+    tribute.is_anonymous || !tribute.name ? "Anonymous" : tribute.name;
+  const initial =
+    displayName === "Anonymous" ? null : displayName[0].toUpperCase();
   const isLong = tribute.message.length > 280;
 
   return (
@@ -31,10 +31,15 @@ export function TributeCard({ tribute }: TributeCardProps) {
           )}
         </div>
 
-        {/* Name + time */}
+        {/* Name + relationship + time */}
         <div className="flex-1 min-w-0">
           <p className="font-sans font-semibold text-foreground text-sm leading-snug">
             {displayName}
+            {tribute.relationship && (
+              <span className="ml-1.5 font-normal text-muted-foreground/70 text-xs">
+                · {tribute.relationship}
+              </span>
+            )}
           </p>
           <p className="text-muted-foreground text-xs mt-0.5">
             {formatRelative(tribute.created_at)}

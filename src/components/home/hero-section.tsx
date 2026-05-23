@@ -1,17 +1,26 @@
 import Image from "next/image";
 import { siteConfig } from "@/config/site";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  primaryImageUrl?: string | null;
+}
+
+export function HeroSection({ primaryImageUrl }: HeroSectionProps) {
+  const src = primaryImageUrl || siteConfig.heroImage;
+  const hasImage = !!primaryImageUrl;
+
   return (
-    <div className="relative w-full h-[60vh] min-h-[380px] max-h-[560px]">
-      <Image
-        src={siteConfig.heroImage}
-        alt={`${siteConfig.name} — In Loving Memory`}
-        fill
-        priority
-        className="object-cover object-top"
-        sizes="100vw"
-      />
+    <div className="relative w-full h-[60vh] min-h-[380px] max-h-[560px] bg-neutral-800">
+      {hasImage && (
+        <Image
+          src={src}
+          alt={`${siteConfig.name} — In Loving Memory`}
+          fill
+          priority
+          className="object-cover object-top"
+          sizes="100vw"
+        />
+      )}
       {/* Dark gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/75" />
 

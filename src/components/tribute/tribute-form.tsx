@@ -16,9 +16,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import type { Tribute } from "@/types/database";
 
 interface TributeFormProps {
-  onSuccess: () => void;
+  onSuccess: (newTribute: Tribute) => void;
 }
 
 export function TributeForm({ onSuccess }: TributeFormProps) {
@@ -39,30 +40,40 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
 
   const onSubmit = async (data: TributeFormData) => {
     const supabase = createClient();
-    const finalRelationship =
-      data.relationship === "Other"
-        ? data.relationship_other?.trim() || null
-        : data.relationship || null;
 
-    const { error } = await supabase.from("tributes").insert({
-      name: data.is_anonymous ? null : data.name?.trim() || null,
-      contact: data.contact?.trim() || null,
-      message: data.message.trim(),
-      is_anonymous: data.is_anonymous,
-      relationship: finalRelationship,
-    });
+    let finalRelationship: string | null = null;
+    if (data.relationship === "Other") {
+      finalRelationship = data.relationship_other?.trim() || null;
+    } else if (data.relationship === "Classmate") {
+      const inst = data.institution?.trim();
+      finalRelationship = inst ? `Classmate — ${inst}` : "Classmate";
+    } else {
+      finalRelationship = data.relationship || null;
+    }
 
-    if (error) {
+    const { data: inserted, error } = await supabase
+      .from("tributes")
+      .insert({
+        name: data.is_anonymous ? null : data.name?.trim() || null,
+        contact: data.contact?.trim() || null,
+        message: data.message.trim(),
+        is_anonymous: data.is_anonymous,
+        relationship: finalRelationship,
+      })
+      .select()
+      .single();
+
+    if (error || !inserted) {
       toast.error("Something went wrong. Please try again.");
       return;
     }
 
     toast.success("Your tribute has been submitted. Thank you.");
-    onSuccess();
+    onSuccess(inserted as Tribute);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Anonymous toggle */}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/60">
         <Checkbox
@@ -76,15 +87,19 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
             }
           }}
         />
-        <Label htmlFor="is_anonymous" className="cursor-pointer text-sm font-sans">
+        <Label
+          htmlFor="is_anonymous"
+          className="cursor-pointer text-sm font-sans"
+        >
           Submit anonymously
         </Label>
       </div>
 
       {/* Name */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="name" className="text-sm font-sans">
-          Your name {!isAnonymous && <span className="text-destructive">*</span>}
+          Your name{" "}
+          {!isAnonymous && <span className="text-destructive">*</span>}
         </Label>
         <Input
           id="name"
@@ -99,7 +114,7 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
       </div>
 
       {/* Relationship to Marshell */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="relationship" className="text-sm font-sans">
           Relationship to Marshell{" "}
           <span className="text-muted-foreground font-normal">(optional)</span>
@@ -107,7 +122,7 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
         <select
           id="relationship"
           {...register("relationship")}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <option value="">— Select —</option>
           {RELATIONSHIP_OPTIONS.map((opt) => (
@@ -117,8 +132,22 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
           ))}
         </select>
 
+        {relationship === "Classmate" && (
+          <div className="space-y-2 pt-1">
+            <Label htmlFor="institution" className="text-xs text-muted-foreground font-sans">
+              Institution / School{" "}
+              <span className="font-normal">(optional)</span>
+            </Label>
+            <Input
+              id="institution"
+              placeholder="e.g. University of Nairobi"
+              {...register("institution")}
+            />
+          </div>
+        )}
+
         {relationship === "Other" && (
-          <div className="space-y-1.5 mt-2">
+          <div className="space-y-2 pt-1">
             <Input
               placeholder="Describe your relationship…"
               {...register("relationship_other")}
@@ -133,7 +162,7 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
       </div>
 
       {/* Contact */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="contact" className="text-sm font-sans">
           Phone or email{" "}
           <span className="text-muted-foreground font-normal">(optional)</span>
@@ -148,7 +177,7 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
       </div>
 
       {/* Message */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="message" className="text-sm font-sans">
           Your tribute <span className="text-destructive">*</span>
         </Label>

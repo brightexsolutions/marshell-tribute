@@ -5,6 +5,7 @@ export const RELATIONSHIP_OPTIONS = [
   "Family",
   "Relative",
   "Friend",
+  "Classmate",
   "Colleague",
   "Other",
 ] as const;
@@ -20,6 +21,7 @@ export const tributeSchema = z
     is_anonymous: z.boolean(),
     relationship: z.string().max(100).optional(),
     relationship_other: z.string().max(100).optional(),
+    institution: z.string().max(150).optional(),
   })
   .superRefine((data, ctx) => {
     if (!data.is_anonymous && (!data.name || data.name.trim() === "")) {

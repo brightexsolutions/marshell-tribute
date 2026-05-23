@@ -1,8 +1,15 @@
 import { siteConfig } from "@/config/site";
-import { galleryImages } from "@/config/images";
 import { GalleryCarousel } from "./gallery-carousel";
+import type { GalleryImage } from "@/config/images";
 
-export function AboutTab() {
+interface AboutTabProps {
+  bio: string;
+  galleryImages: GalleryImage[];
+}
+
+export function AboutTab({ bio, galleryImages }: AboutTabProps) {
+  const displayBio = bio || siteConfig.bio;
+
   return (
     <div className="space-y-8 py-4">
       {/* Biography */}
@@ -10,8 +17,8 @@ export function AboutTab() {
         <h2 className="text-xl sm:text-2xl font-serif font-semibold text-foreground mb-3">
           About Marshell
         </h2>
-        <div className="prose prose-sm max-w-none">
-          {siteConfig.bio.split("\n\n").map((paragraph, i) => (
+        <div>
+          {displayBio.split("\n\n").map((paragraph, i) => (
             <p
               key={i}
               className="text-foreground/80 leading-relaxed text-base mb-4 font-sans"
@@ -23,23 +30,12 @@ export function AboutTab() {
       </div>
 
       {/* Gallery */}
-      {galleryImages.length > 0 && (
-        <div>
-          <h3 className="text-lg font-serif font-semibold text-foreground mb-3">
-            Gallery
-          </h3>
-          <GalleryCarousel images={galleryImages} />
-        </div>
-      )}
-
-      {galleryImages.length === 0 && (
-        <div>
-          <h3 className="text-lg font-serif font-semibold text-foreground mb-3">
-            Gallery
-          </h3>
-          <GalleryCarousel images={[]} />
-        </div>
-      )}
+      <div>
+        <h3 className="text-lg font-serif font-semibold text-foreground mb-3">
+          Gallery
+        </h3>
+        <GalleryCarousel images={galleryImages} />
+      </div>
     </div>
   );
 }
