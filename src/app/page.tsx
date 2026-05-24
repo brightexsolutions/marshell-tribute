@@ -193,8 +193,9 @@ export default async function HomePage() {
             rel="noopener noreferrer"
             className="underline underline-offset-2 hover:text-foreground transition-colors"
           >
-            Brightex Solutions
+            Brown (Brightex Solutions)
           </a>
+          {" "}&mdash; Former classmate, Orero School
         </p>
       </footer>
     </div>
