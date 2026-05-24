@@ -21,6 +21,7 @@ interface PageData {
   contributionPhone: string;
   contributionName: string;
   contributionNote: string;
+  displayName: string;
 }
 
 async function getPageData(): Promise<PageData> {
@@ -102,9 +103,12 @@ async function getPageData(): Promise<PageData> {
   const galleryImages =
     galleryPhotos.length > 0 ? galleryPhotos : staticGalleryImages;
 
+  const displayName = (heroName && heroName.trim()) ? heroName.trim() : siteConfig.name;
+
   return {
     count, primaryImageUrl, galleryImages, bio, heroName, bornYear, diedYear, burialDate,
     contributionEnabled, contributionMethod, contributionPhone, contributionName, contributionNote,
+    displayName,
   };
 }
 
@@ -112,6 +116,7 @@ export default async function HomePage() {
   const {
     count, primaryImageUrl, galleryImages, bio, heroName, bornYear, diedYear, burialDate,
     contributionEnabled, contributionMethod, contributionPhone, contributionName, contributionNote,
+    displayName,
   } = await getPageData();
 
   return (
@@ -134,6 +139,7 @@ export default async function HomePage() {
             contributionPhone={contributionPhone}
             contributionName={contributionName}
             contributionNote={contributionNote}
+            displayName={displayName}
           />
         </div>
       </main>

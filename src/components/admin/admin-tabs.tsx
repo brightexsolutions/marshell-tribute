@@ -44,48 +44,53 @@ export function AdminTabs({ tributes: initial }: AdminTabsProps) {
   }, [tributes]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-serif font-semibold text-foreground">
-            Marshell Memorial — Admin
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1 font-sans">
-            Manage tributes, upload photos, and edit the bio.
-          </p>
+    <Tabs defaultValue="tributes" className="flex flex-col min-h-screen">
+      {/* Sticky full-width header */}
+      <div className="sticky top-0 z-20 bg-background border-b border-border shrink-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          {/* Title row */}
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <h1 className="text-lg sm:text-xl font-serif font-semibold text-foreground leading-tight">
+                Marshell Memorial — Admin
+              </h1>
+              <p className="text-xs text-muted-foreground font-sans hidden sm:block">
+                Manage tributes, photos, bio and contributions.
+              </p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={logout} className="gap-1.5 text-muted-foreground shrink-0">
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
+          </div>
+
+          {/* Tab bar */}
+          <TabsList className="w-full bg-transparent rounded-none h-auto p-0 justify-start gap-0 border-b-0 -mb-px overflow-x-auto">
+            <TabsTrigger
+              value="tributes"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-2.5 font-sans text-sm font-medium whitespace-nowrap"
+            >
+              Tributes ({tributes.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="photos"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-2.5 font-sans text-sm font-medium whitespace-nowrap"
+            >
+              Photos & Bio
+            </TabsTrigger>
+            <TabsTrigger
+              value="contributions"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-2.5 font-sans text-sm font-medium whitespace-nowrap"
+            >
+              Contributions
+            </TabsTrigger>
+          </TabsList>
         </div>
-        <Button variant="ghost" size="sm" onClick={logout} className="gap-1.5 text-muted-foreground">
-          <LogOut className="w-3.5 h-3.5" />
-          Sign out
-        </Button>
       </div>
 
-      <Tabs defaultValue="tributes" className="w-full">
-        <TabsList className="w-full border-b border-border bg-transparent rounded-none h-auto p-0 justify-start gap-0">
-          <TabsTrigger
-            value="tributes"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 font-sans text-sm font-medium"
-          >
-            Tributes ({tributes.length})
-          </TabsTrigger>
-          <TabsTrigger
-            value="photos"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 font-sans text-sm font-medium"
-          >
-            Marshell&apos;s Photos & Bio
-          </TabsTrigger>
-          <TabsTrigger
-            value="contributions"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 sm:px-6 py-3 font-sans text-sm font-medium"
-          >
-            Contributions
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent
-          value="tributes"
-          className="mt-0 pt-6 focus-visible:outline-none"
-        >
+      {/* Scrollable content */}
+      <div className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6">
+        <TabsContent value="tributes" className="mt-0 focus-visible:outline-none">
           <div className="flex items-center justify-end gap-2 mb-4">
             <Button
               variant="outline"
@@ -105,20 +110,14 @@ export function AdminTabs({ tributes: initial }: AdminTabsProps) {
           />
         </TabsContent>
 
-        <TabsContent
-          value="photos"
-          className="mt-0 pt-6 focus-visible:outline-none"
-        >
+        <TabsContent value="photos" className="mt-0 focus-visible:outline-none">
           <PhotosTab />
         </TabsContent>
 
-        <TabsContent
-          value="contributions"
-          className="mt-0 pt-6 focus-visible:outline-none"
-        >
+        <TabsContent value="contributions" className="mt-0 focus-visible:outline-none">
           <ContributionsTab />
         </TabsContent>
-      </Tabs>
-    </div>
+      </div>
+    </Tabs>
   );
 }
