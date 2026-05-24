@@ -2,6 +2,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/hero-section";
 import { PageTabs } from "@/components/home/page-tabs";
+import { LoadingOverlay } from "@/components/home/loading-overlay";
 import { createAdminClient } from "@/lib/supabase/server";
 import { siteConfig } from "@/config/site";
 import { galleryImages as staticGalleryImages } from "@/config/images";
@@ -159,6 +160,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <LoadingOverlay name={displayName} />
       <main className="flex-1">
         <HeroSection
           primaryImageUrl={primaryImageUrl}
