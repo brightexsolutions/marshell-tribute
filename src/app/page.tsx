@@ -12,17 +12,36 @@ interface PageData {
   primaryImageUrl: string | null;
   galleryImages: GalleryImage[];
   bio: string;
+  heroName: string | null;
+  bornYear: string | null;
+  diedYear: string | null;
+  burialDate: string | null;
+  contributionEnabled: boolean;
+  contributionMethod: string;
+  contributionPhone: string;
+  contributionName: string;
+  contributionNote: string;
 }
 
 async function getPageData(): Promise<PageData> {
   const supabase = createAdminClient();
 
-  // Run each query independently — a missing table (migrations not yet run)
-  // only falls back that specific value, not the whole page
-  const [countResult, photosResult, bioResult] = await Promise.allSettled([
+  const [
+    countResult, photosResult, bioResult, nameResult, bornResult, diedResult, burialResult,
+    contribEnabledResult, contribMethodResult, contribPhoneResult, contribNameResult, contribNoteResult,
+  ] = await Promise.allSettled([
     supabase.from("tributes").select("*", { count: "exact", head: true }),
     supabase.from("photos").select("url, is_primary").order("created_at", { ascending: true }),
     supabase.from("site_content").select("value").eq("key", "bio").single(),
+    supabase.from("site_content").select("value").eq("key", "hero_name").single(),
+    supabase.from("site_content").select("value").eq("key", "born_year").single(),
+    supabase.from("site_content").select("value").eq("key", "died_year").single(),
+    supabase.from("site_content").select("value").eq("key", "burial_date").single(),
+    supabase.from("site_content").select("value").eq("key", "contribution_enabled").single(),
+    supabase.from("site_content").select("value").eq("key", "contribution_method").single(),
+    supabase.from("site_content").select("value").eq("key", "contribution_phone").single(),
+    supabase.from("site_content").select("value").eq("key", "contribution_name").single(),
+    supabase.from("site_content").select("value").eq("key", "contribution_note").single(),
   ]);
 
   const count =
@@ -36,6 +55,43 @@ async function getPageData(): Promise<PageData> {
       ? (bioResult.value.data?.value ?? siteConfig.bio)
       : siteConfig.bio;
 
+  const heroName =
+    nameResult.status === "fulfilled" ? (nameResult.value.data?.value ?? null) : null;
+
+  const bornYear =
+    bornResult.status === "fulfilled" ? (bornResult.value.data?.value || null) : null;
+
+  const diedYear =
+    diedResult.status === "fulfilled" ? (diedResult.value.data?.value || null) : null;
+
+  const burialDate =
+    burialResult.status === "fulfilled" ? (burialResult.value.data?.value ?? null) : null;
+
+  const contributionEnabled =
+    contribEnabledResult.status === "fulfilled"
+      ? (contribEnabledResult.value.data?.value ?? "true") !== "false"
+      : true;
+
+  const contributionMethod =
+    contribMethodResult.status === "fulfilled"
+      ? (contribMethodResult.value.data?.value ?? "M-Pesa")
+      : "M-Pesa";
+
+  const contributionPhone =
+    contribPhoneResult.status === "fulfilled"
+      ? (contribPhoneResult.value.data?.value ?? "")
+      : "";
+
+  const contributionName =
+    contribNameResult.status === "fulfilled"
+      ? (contribNameResult.value.data?.value ?? "")
+      : "";
+
+  const contributionNote =
+    contribNoteResult.status === "fulfilled"
+      ? (contribNoteResult.value.data?.value ?? "")
+      : "";
+
   const primaryPhoto = photos.find((p) => p.is_primary);
   const primaryImageUrl = primaryPhoto?.url ?? null;
 
@@ -46,21 +102,38 @@ async function getPageData(): Promise<PageData> {
   const galleryImages =
     galleryPhotos.length > 0 ? galleryPhotos : staticGalleryImages;
 
-  return { count, primaryImageUrl, galleryImages, bio };
+  return {
+    count, primaryImageUrl, galleryImages, bio, heroName, bornYear, diedYear, burialDate,
+    contributionEnabled, contributionMethod, contributionPhone, contributionName, contributionNote,
+  };
 }
 
 export default async function HomePage() {
-  const { count, primaryImageUrl, galleryImages, bio } = await getPageData();
+  const {
+    count, primaryImageUrl, galleryImages, bio, heroName, bornYear, diedYear, burialDate,
+    contributionEnabled, contributionMethod, contributionPhone, contributionName, contributionNote,
+  } = await getPageData();
 
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
-        <HeroSection primaryImageUrl={primaryImageUrl} />
+        <HeroSection
+          primaryImageUrl={primaryImageUrl}
+          name={heroName}
+          bornYear={bornYear}
+          diedYear={diedYear}
+          burialDate={burialDate}
+        />
         <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-24 sm:pb-10">
           <PageTabs
             initialCount={count}
             bio={bio}
             galleryImages={galleryImages}
+            contributionEnabled={contributionEnabled}
+            contributionMethod={contributionMethod}
+            contributionPhone={contributionPhone}
+            contributionName={contributionName}
+            contributionNote={contributionNote}
           />
         </div>
       </main>

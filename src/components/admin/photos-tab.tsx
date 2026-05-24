@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Star, Trash2, Upload, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 import { BioEditor } from "./bio-editor";
+import { SiteInfoEditor } from "./site-info-editor";
 import { MAX_PHOTOS } from "@/config/constants";
 
 interface Photo {
@@ -236,6 +237,12 @@ export function PhotosTab() {
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      <div className="border-t border-border" />
+
+      {/* Hero details (name + burial date) */}
+      <SiteInfoEditor />
 
       {/* Divider */}
       <div className="border-t border-border" />

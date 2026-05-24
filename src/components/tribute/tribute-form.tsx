@@ -7,7 +7,6 @@ import {
   TributeFormData,
   RELATIONSHIP_OPTIONS,
 } from "@/lib/validations/tribute";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,37 +38,37 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
   const message = watch("message") ?? "";
 
   const onSubmit = async (data: TributeFormData) => {
-    const supabase = createClient();
-
-    let finalRelationship: string | null = null;
+    let relationship: string | null = null;
     if (data.relationship === "Other") {
-      finalRelationship = data.relationship_other?.trim() || null;
+      relationship = data.relationship_other?.trim() || null;
     } else if (data.relationship === "Classmate") {
       const inst = data.institution?.trim();
-      finalRelationship = inst ? `Classmate — ${inst}` : "Classmate";
+      relationship = inst ? `Classmate — ${inst}` : "Classmate";
     } else {
-      finalRelationship = data.relationship || null;
+      relationship = data.relationship || null;
     }
 
-    const { data: inserted, error } = await supabase
-      .from("tributes")
-      .insert({
+    const res = await fetch("/api/tributes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         name: data.is_anonymous ? null : data.name?.trim() || null,
         contact: data.contact?.trim() || null,
         message: data.message.trim(),
-        is_anonymous: data.is_anonymous,
-        relationship: finalRelationship,
-      })
-      .select()
-      .single();
+        is_anonymous: data.is_anonymous ?? false,
+        relationship,
+      }),
+    });
 
-    if (error || !inserted) {
-      toast.error("Something went wrong. Please try again.");
+    const json = await res.json();
+
+    if (!res.ok) {
+      toast.error(json.error ?? "Something went wrong. Please try again.");
       return;
     }
 
     toast.success("Your tribute has been submitted. Thank you.");
-    onSuccess(inserted as Tribute);
+    onSuccess(json as Tribute);
   };
 
   return (

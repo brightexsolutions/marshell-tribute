@@ -8,14 +8,18 @@ import type { Tribute } from "@/types/database";
 
 interface PdfExportButtonProps {
   tributes: Tribute[];
+  onBeforeDownload?: () => Promise<Tribute[]>;
 }
 
-export function PdfExportButton({ tributes }: PdfExportButtonProps) {
+export function PdfExportButton({ tributes, onBeforeDownload }: PdfExportButtonProps) {
   const [generating, setGenerating] = useState(false);
 
   const handleDownload = async () => {
     setGenerating(true);
     try {
+      // Fetch latest before generating so the PDF is always up to date
+      const latest = onBeforeDownload ? await onBeforeDownload() : tributes;
+
       // Dynamic imports keep these browser-only libraries out of the server bundle
       const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
         import("jspdf"),
@@ -35,7 +39,7 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
       doc.setFontSize(9);
       doc.setTextColor(100);
       doc.text(
-        `Generated: ${generatedAt}  |  Total tributes: ${tributes.length}`,
+        `Generated: ${generatedAt}  |  Total tributes: ${latest.length}`,
         14,
         23
       );
@@ -43,7 +47,7 @@ export function PdfExportButton({ tributes }: PdfExportButtonProps) {
 
       autoTable(doc, {
         head: [["#", "Name", "Relationship", "Contact", "Message", "Date Submitted"]],
-        body: tributes.map((t, i) => [
+        body: latest.map((t, i) => [
           String(i + 1),
           t.is_anonymous || !t.name ? "Anonymous" : t.name,
           t.relationship ?? "—",

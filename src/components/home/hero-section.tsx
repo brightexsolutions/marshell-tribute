@@ -3,11 +3,19 @@ import { siteConfig } from "@/config/site";
 
 interface HeroSectionProps {
   primaryImageUrl?: string | null;
+  name?: string | null;
+  bornYear?: string | null;
+  diedYear?: string | null;
+  burialDate?: string | null;
 }
 
-export function HeroSection({ primaryImageUrl }: HeroSectionProps) {
+export function HeroSection({ primaryImageUrl, name, bornYear, diedYear, burialDate }: HeroSectionProps) {
   const src = primaryImageUrl || siteConfig.heroImage;
   const hasImage = !!primaryImageUrl;
+  const displayName = name || siteConfig.name;
+  const displayBurial = burialDate ?? siteConfig.burial;
+  const displayBorn = bornYear || (siteConfig.born !== "19XX" ? siteConfig.born : null);
+  const displayDied = diedYear || siteConfig.died;
 
   return (
     <div className="relative w-full h-[60vh] min-h-[380px] max-h-[560px] bg-neutral-800">
@@ -30,16 +38,16 @@ export function HeroSection({ primaryImageUrl }: HeroSectionProps) {
           In Loving Memory
         </p>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold leading-tight">
-          {siteConfig.name}
+          {displayName}
         </h1>
-        {siteConfig.born !== "19XX" && (
+        {displayBorn && (
           <p className="mt-1 text-base sm:text-lg font-sans font-light text-white/75">
-            {siteConfig.born} – {siteConfig.died}
+            {displayBorn} – {displayDied}
           </p>
         )}
-        {siteConfig.burial && (
+        {displayBurial && (
           <p className="mt-1 text-sm font-sans font-light text-white/60 tracking-wide">
-            Burial: {siteConfig.burial}
+            Burial: {displayBurial}
           </p>
         )}
       </div>

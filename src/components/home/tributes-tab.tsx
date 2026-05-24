@@ -17,10 +17,11 @@ export interface TributesTabHandle {
 interface TributesTabProps {
   onOpenModal: () => void;
   onCountChange: (delta: number) => void;
+  onSyncCount: (total: number) => void;
 }
 
 export const TributesTab = forwardRef<TributesTabHandle, TributesTabProps>(
-  function TributesTab({ onOpenModal, onCountChange }, ref) {
+  function TributesTab({ onOpenModal, onCountChange, onSyncCount }, ref) {
     const [tributes, setTributes] = useState<Tribute[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -40,9 +41,9 @@ export const TributesTab = forwardRef<TributesTabHandle, TributesTabProps>(
 
     const fetchTributes = async (offset: number, append = false) => {
       const supabase = createClient();
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from("tributes")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("created_at", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
 
@@ -51,6 +52,9 @@ export const TributesTab = forwardRef<TributesTabHandle, TributesTabProps>(
       data.forEach((t) => knownIds.current.add(t.id));
       setTributes((prev) => (append ? [...prev, ...data] : data));
       offsetRef.current = offset + data.length;
+
+      // Sync the true total on initial load so the tab badge is always accurate
+      if (offset === 0 && count !== null) onSyncCount(count);
     };
 
     useEffect(() => {
@@ -91,14 +95,6 @@ export const TributesTab = forwardRef<TributesTabHandle, TributesTabProps>(
 
     return (
       <div className="py-4 space-y-4">
-        {/* Leave tribute button — desktop only (FAB handles mobile) */}
-        <div className="hidden sm:flex justify-end">
-          <Button onClick={onOpenModal} className="gap-2">
-            <Heart className="w-4 h-4" />
-            Leave a Tribute
-          </Button>
-        </div>
-
         {tributes.length === 0 ? (
           <div className="text-center py-14 text-muted-foreground space-y-2">
             <Heart className="w-8 h-8 mx-auto opacity-40" />
