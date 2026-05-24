@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/hero-section";
 import { PageTabs } from "@/components/home/page-tabs";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -24,7 +26,7 @@ interface PageData {
   displayName: string;
 }
 
-async function getPageData(): Promise<PageData> {
+const getPageData = cache(async (): Promise<PageData> => {
   const supabase = createAdminClient();
 
   const [
@@ -109,6 +111,33 @@ async function getPageData(): Promise<PageData> {
     count, primaryImageUrl, galleryImages, bio, heroName, bornYear, diedYear, burialDate,
     contributionEnabled, contributionMethod, contributionPhone, contributionName, contributionNote,
     displayName,
+  };
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { displayName, primaryImageUrl, bornYear, diedYear } = await getPageData();
+
+  const title = `In Loving Memory of ${displayName}`;
+  const years = bornYear && diedYear ? ` · ${bornYear}–${diedYear}` : "";
+  const description = `${displayName}${years} — A memorial tribute page. Share your condolences and read tributes from those who knew him.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      ...(primaryImageUrl && {
+        images: [{ url: primaryImageUrl, alt: `${displayName} — In Loving Memory` }],
+      }),
+    },
+    twitter: {
+      card: primaryImageUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(primaryImageUrl && { images: [primaryImageUrl] }),
+    },
   };
 }
 
