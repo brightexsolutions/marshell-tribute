@@ -115,11 +115,20 @@ const getPageData = cache(async (): Promise<PageData> => {
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { displayName, primaryImageUrl, bornYear, diedYear } = await getPageData();
+  const { displayName, bornYear, diedYear } = await getPageData();
 
   const title = `In Loving Memory of ${displayName}`;
   const years = bornYear && diedYear ? ` · ${bornYear}–${diedYear}` : "";
   const description = `${displayName}${years} — A memorial tribute page. Share your condolences and read tributes from those who knew him.`;
+
+  // Build absolute OG image URL — served from our own domain, always accessible to crawlers
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  const yearParam = bornYear && diedYear ? `${bornYear}–${diedYear}` : diedYear ?? "";
+  const ogImageUrl = siteUrl
+    ? `${siteUrl}/og?name=${encodeURIComponent(displayName)}${yearParam ? `&year=${encodeURIComponent(yearParam)}` : ""}`
+    : null;
 
   return {
     title,
@@ -128,15 +137,15 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      ...(primaryImageUrl && {
-        images: [{ url: primaryImageUrl, alt: `${displayName} — In Loving Memory` }],
+      ...(ogImageUrl && {
+        images: [{ url: ogImageUrl, width: 1200, height: 630, alt: `${displayName} — In Loving Memory` }],
       }),
     },
     twitter: {
-      card: primaryImageUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      ...(primaryImageUrl && { images: [primaryImageUrl] }),
+      ...(ogImageUrl && { images: [ogImageUrl] }),
     },
   };
 }
