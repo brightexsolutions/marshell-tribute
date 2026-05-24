@@ -3,7 +3,8 @@
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { TributesTable } from "./tributes-table";
 import { PhotosTab } from "./photos-tab";
 import { ContributionsTab } from "./contributions-tab";
@@ -16,8 +17,14 @@ interface AdminTabsProps {
 }
 
 export function AdminTabs({ tributes: initial }: AdminTabsProps) {
+  const router = useRouter();
   const [tributes, setTributes] = useState<Tribute[]>(initial);
   const [refreshing, setRefreshing] = useState(false);
+
+  const logout = async () => {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    router.replace("/admin-login");
+  };
 
   const refresh = useCallback(async (): Promise<Tribute[]> => {
     setRefreshing(true);
@@ -47,6 +54,10 @@ export function AdminTabs({ tributes: initial }: AdminTabsProps) {
             Manage tributes, upload photos, and edit the bio.
           </p>
         </div>
+        <Button variant="ghost" size="sm" onClick={logout} className="gap-1.5 text-muted-foreground">
+          <LogOut className="w-3.5 h-3.5" />
+          Sign out
+        </Button>
       </div>
 
       <Tabs defaultValue="tributes" className="w-full">
