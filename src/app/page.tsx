@@ -186,16 +186,15 @@ export default async function HomePage() {
 
       <footer className="border-t border-border py-5 px-4">
         <p className="text-center text-xs text-muted-foreground font-sans">
-          &copy; {new Date().getFullYear()} &mdash; Built by{" "}
+          &copy; {new Date().getFullYear()} &mdash; Site by{" "}
           <a
             href="https://www.brightexsolutions.co.ke"
             target="_blank"
             rel="noopener noreferrer"
             className="underline underline-offset-2 hover:text-foreground transition-colors"
           >
-            Brown (Brightex Solutions)
+            Brightex Solutions
           </a>
-          {" "}&mdash; Former classmate, Orero School
         </p>
       </footer>
     </div>
