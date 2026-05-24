@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, LogOut } from "lucide-react";
@@ -20,6 +20,8 @@ export function AdminTabs({ tributes: initial }: AdminTabsProps) {
   const router = useRouter();
   const [tributes, setTributes] = useState<Tribute[]>(initial);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState("tributes");
+  const initialMount = useRef(true);
 
   const logout = async () => {
     await fetch("/api/admin/auth", { method: "DELETE" });
@@ -43,8 +45,16 @@ export function AdminTabs({ tributes: initial }: AdminTabsProps) {
     }
   }, [tributes]);
 
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    if (tab === "tributes" && !initialMount.current) {
+      refresh();
+    }
+    initialMount.current = false;
+  }, [refresh]);
+
   return (
-    <Tabs defaultValue="tributes" className="flex flex-col min-h-screen">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col min-h-screen">
       {/* Sticky full-width header */}
       <div className="sticky top-0 z-20 bg-background border-b border-border shrink-0">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

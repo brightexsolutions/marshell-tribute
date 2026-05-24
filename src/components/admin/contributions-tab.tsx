@@ -240,33 +240,84 @@ export function ContributionsTab() {
         </form>
       )}
 
-      {/* Table */}
+      {/* Table / Cards */}
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+      ) : items.length === 0 ? (
+        <div className="rounded-lg border border-border py-12 text-center text-sm text-muted-foreground font-sans">
+          No contributions yet.
+        </div>
       ) : (
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="font-sans font-semibold text-foreground">Name</TableHead>
-                  <TableHead className="font-sans font-semibold text-foreground">Method</TableHead>
-                  <TableHead className="font-sans font-semibold text-foreground">M-Pesa Ref</TableHead>
-                  <TableHead className="font-sans font-semibold text-foreground">Amount (KES)</TableHead>
-                  <TableHead className="font-sans font-semibold text-foreground">Status</TableHead>
-                  <TableHead className="font-sans font-semibold text-foreground">Date</TableHead>
-                  <TableHead className="w-20" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground text-sm font-sans">
-                      No contributions yet.
-                    </TableCell>
+        <>
+          {/* ── Mobile: card layout ──────────────────────────────────────── */}
+          <div className="sm:hidden space-y-3">
+            {items.map((c) => (
+              <div key={c.id} className="rounded-lg border border-border bg-card p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-medium text-sm">
+                        {c.is_anonymous ? <span className="italic text-muted-foreground">Anonymous</span> : c.contributor}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {c.payment_method === "cash" ? "Cash" : "M-Pesa"}
+                      </Badge>
+                      <Badge variant={c.confirmed ? "default" : "secondary"} className="text-xs">
+                        {c.confirmed ? "Confirmed" : "Pending"}
+                      </Badge>
+                    </div>
+                    {c.payment_method !== "cash" && c.mpesa_ref && (
+                      <p className="text-xs font-mono text-muted-foreground">{c.mpesa_ref}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <Button
+                      size="icon" variant="ghost"
+                      className={`h-7 w-7 ${c.confirmed ? "text-green-600" : "text-muted-foreground"}`}
+                      title={c.confirmed ? "Mark unconfirmed" : "Mark confirmed"}
+                      disabled={actionId === c.id}
+                      onClick={() => toggleConfirm(c)}
+                    >
+                      {actionId === c.id
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : c.confirmed ? <CheckCircle className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                    </Button>
+                    <Button
+                      size="icon" variant="ghost"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      disabled={actionId === c.id}
+                      onClick={() => handleDelete(c.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{c.amount != null ? `KES ${c.amount.toLocaleString()}` : "Amount not specified"}</span>
+                  <span>{formatDateTime(c.created_at)}</span>
+                </div>
+                {c.note && <p className="text-xs text-muted-foreground italic">{c.note}</p>}
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop: table layout ────────────────────────────────────── */}
+          <div className="hidden sm:block rounded-lg border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="font-sans font-semibold text-foreground">Name</TableHead>
+                    <TableHead className="font-sans font-semibold text-foreground">Method</TableHead>
+                    <TableHead className="font-sans font-semibold text-foreground">M-Pesa Ref</TableHead>
+                    <TableHead className="font-sans font-semibold text-foreground">Amount (KES)</TableHead>
+                    <TableHead className="font-sans font-semibold text-foreground">Status</TableHead>
+                    <TableHead className="font-sans font-semibold text-foreground">Date</TableHead>
+                    <TableHead className="w-20" />
                   </TableRow>
-                ) : (
-                  items.map((c) => (
+                </TableHeader>
+                <TableBody>
+                  {items.map((c) => (
                     <TableRow key={c.id} className="align-top">
                       <TableCell className="font-medium text-sm">
                         {c.is_anonymous ? <span className="text-muted-foreground italic">Anonymous</span> : c.contributor}
@@ -278,7 +329,7 @@ export function ContributionsTab() {
                       </TableCell>
                       <TableCell className="text-sm font-mono text-muted-foreground">
                         {c.payment_method === "cash"
-                          ? <span className="text-border not-italic">—</span>
+                          ? <span className="text-border">—</span>
                           : (c.mpesa_ref ?? <span className="text-border">—</span>)}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
@@ -318,12 +369,12 @@ export function ContributionsTab() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
