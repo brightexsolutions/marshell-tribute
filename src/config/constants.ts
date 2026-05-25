@@ -1,1 +1,1 @@
-export const MAX_PHOTOS = 25;
+export const MAX_PHOTOS = 60;
