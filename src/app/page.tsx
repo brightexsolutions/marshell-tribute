@@ -180,6 +180,7 @@ export default async function HomePage() {
             contributionName={contributionName}
             contributionNote={contributionNote}
             displayName={displayName}
+            burialDate={burialDate}
           />
         </div>
       </main>

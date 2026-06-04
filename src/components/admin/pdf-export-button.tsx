@@ -11,6 +11,14 @@ interface PdfExportButtonProps {
   onBeforeDownload?: () => Promise<Tribute[]>;
 }
 
+function stripEmojis(str: string): string {
+  return str
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
+    .replace(/[☀-➿︀-️‍⃣]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function PdfExportButton({ tributes, onBeforeDownload }: PdfExportButtonProps) {
   const [generating, setGenerating] = useState(false);
 
@@ -49,14 +57,14 @@ export function PdfExportButton({ tributes, onBeforeDownload }: PdfExportButtonP
         head: [["#", "Name", "Relationship", "Contact", "Message", "Date Submitted"]],
         body: latest.map((t, i) => [
           String(i + 1),
-          t.is_anonymous || !t.name ? "Anonymous" : t.name,
-          t.relationship ?? "—",
-          t.contact ?? "—",
-          t.message,
+          stripEmojis(t.is_anonymous || !t.name ? "Anonymous" : t.name),
+          stripEmojis(t.relationship ?? "—"),
+          stripEmojis(t.contact ?? "—"),
+          stripEmojis(t.message),
           formatDateTime(t.created_at),
         ]),
         startY: 28,
-        styles: { font: "helvetica", fontSize: 9, cellPadding: 3, valign: "top" },
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 3, valign: "top", overflow: "linebreak" },
         headStyles: { fillColor: [30, 30, 35], textColor: 255, fontStyle: "bold" },
         columnStyles: {
           0: { cellWidth: 10 },

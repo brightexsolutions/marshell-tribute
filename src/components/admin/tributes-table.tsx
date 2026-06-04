@@ -88,35 +88,50 @@ export function TributesTable({ tributes, onDelete }: TributesTableProps) {
       {/* ── Desktop: table layout ────────────────────────────────────────── */}
       <div className="hidden sm:block rounded-lg border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="table-fixed w-full">
+            <colgroup>
+              <col className="w-10" />
+              <col className="w-36" />
+              <col className="w-36" />
+              <col className="w-40" />
+              <col />
+              <col className="w-40" />
+              <col className="w-12" />
+            </colgroup>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="w-10 font-sans font-semibold text-foreground">#</TableHead>
+                <TableHead className="font-sans font-semibold text-foreground">#</TableHead>
                 <TableHead className="font-sans font-semibold text-foreground">Name</TableHead>
-                <TableHead className="font-sans font-semibold text-foreground whitespace-nowrap">Relationship</TableHead>
+                <TableHead className="font-sans font-semibold text-foreground">Relationship</TableHead>
                 <TableHead className="font-sans font-semibold text-foreground">Contact</TableHead>
                 <TableHead className="font-sans font-semibold text-foreground">Message</TableHead>
                 <TableHead className="font-sans font-semibold text-foreground whitespace-nowrap">Date Submitted</TableHead>
-                <TableHead className="w-12" />
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {tributes.map((tribute, index) => (
-                <TableRow key={tribute.id} className="align-top">
+                <TableRow key={tribute.id} className={`align-top border-t border-border ${index % 2 === 0 ? "bg-background" : "bg-muted/30"}`}>
                   <TableCell className="text-muted-foreground text-sm">{index + 1}</TableCell>
-                  <TableCell className="font-sans text-sm font-medium whitespace-nowrap">
-                    {tribute.is_anonymous || !tribute.name ? (
-                      <Badge variant="secondary" className="font-normal">Anonymous</Badge>
-                    ) : tribute.name}
+                  <TableCell className="font-sans text-sm font-medium">
+                    <div className="break-words">
+                      {tribute.is_anonymous || !tribute.name ? (
+                        <Badge variant="secondary" className="font-normal">Anonymous</Badge>
+                      ) : tribute.name}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                    {tribute.relationship ?? <span className="text-border">—</span>}
+                  <TableCell className="text-sm text-muted-foreground">
+                    <div className="break-words">
+                      {tribute.relationship ?? <span className="text-border">—</span>}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                    {tribute.contact ?? <span className="text-border">—</span>}
+                  <TableCell className="text-sm text-muted-foreground">
+                    <div className="break-words">
+                      {tribute.contact ?? <span className="text-border">—</span>}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm text-foreground/80 max-w-xs">
-                    <p className="leading-relaxed">{tribute.message}</p>
+                  <TableCell className="text-sm text-foreground/80">
+                    <p className="leading-relaxed break-words whitespace-pre-wrap">{tribute.message}</p>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                     {formatDateTime(tribute.created_at)}

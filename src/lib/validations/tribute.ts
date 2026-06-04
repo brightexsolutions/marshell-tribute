@@ -17,7 +17,7 @@ export const tributeSchema = z
     message: z
       .string()
       .min(1, "Please write your tribute message.")
-      .max(2000, "Message must be 2000 characters or less."),
+      .max(600, "Message must be 600 characters or less."),
     is_anonymous: z.boolean(),
     relationship: z.string().max(100).optional(),
     relationship_other: z.string().max(100).optional(),

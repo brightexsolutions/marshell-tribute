@@ -184,21 +184,34 @@ export function TributeForm({ onSuccess }: TributeFormProps) {
           id="message"
           placeholder="Share a memory, a kind word, or a prayer…"
           rows={5}
+          maxLength={600}
           {...register("message")}
         />
         <div className="flex justify-between items-center">
           {errors.message ? (
             <p className="text-destructive text-xs">{errors.message.message}</p>
+          ) : message.length >= 560 ? (
+            <p className="text-amber-600 text-xs">
+              {600 - message.length} character{600 - message.length === 1 ? "" : "s"} remaining
+            </p>
           ) : (
             <span />
           )}
-          <span className="text-xs text-muted-foreground">
-            {message.length}/2000
+          <span className={`text-xs tabular-nums ${
+            message.length >= 600 ? "text-destructive font-medium" :
+            message.length >= 560 ? "text-amber-600" :
+            "text-muted-foreground"
+          }`}>
+            {message.length}/600
           </span>
         </div>
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full gap-2">
+      <Button
+        type="submit"
+        disabled={isSubmitting || message.trim().length === 0 || message.length > 600}
+        className="w-full gap-2"
+      >
         {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
         {isSubmitting ? "Submitting…" : "Submit Tribute"}
       </Button>

@@ -8,6 +8,7 @@ import { AboutTab } from "./about-tab";
 import { TributesTab, TributesTabHandle } from "./tributes-tab";
 import { SupportTab } from "./support-tab";
 import { TributeModal } from "@/components/tribute/tribute-modal";
+import { AnnouncementDialog } from "./announcement-dialog";
 import { Fab } from "@/components/layout/fab";
 import type { Tribute } from "@/types/database";
 import type { GalleryImage } from "@/config/images";
@@ -22,6 +23,7 @@ interface PageTabsProps {
   contributionName: string;
   contributionNote: string;
   displayName: string;
+  burialDate: string | null;
 }
 
 export function PageTabs({
@@ -34,6 +36,7 @@ export function PageTabs({
   contributionName,
   contributionNote,
   displayName,
+  burialDate,
 }: PageTabsProps) {
   const [tributeCount, setTributeCount] = useState(initialCount);
   const [activeTab, setActiveTab] = useState("about");
@@ -141,6 +144,14 @@ export function PageTabs({
         open={modalOpen}
         onClose={closeModal}
         onTributeSubmitted={handleTributeSubmitted}
+      />
+      <AnnouncementDialog
+        burialDate={burialDate}
+        personName={displayName}
+        contributionEnabled={contributionEnabled}
+        onLeaveTribute={openModal}
+        onReadTributes={() => setActiveTab("tributes")}
+        onSupport={() => setActiveTab("support")}
       />
       <Fab onClick={openModal} />
     </>

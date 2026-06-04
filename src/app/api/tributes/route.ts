@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
   if (!message || typeof message !== "string" || message.trim().length === 0) {
     return NextResponse.json({ error: "Tribute message is required." }, { status: 400 });
   }
-  if (message.trim().length > 2000) {
-    return NextResponse.json({ error: "Message must be 2000 characters or less." }, { status: 400 });
+  if (message.trim().length > 600) {
+    return NextResponse.json({ error: "Message must be 600 characters or less." }, { status: 400 });
   }
   if (!is_anonymous && (!name || !name.trim())) {
     return NextResponse.json({ error: "Name is required unless submitting anonymously." }, { status: 400 });

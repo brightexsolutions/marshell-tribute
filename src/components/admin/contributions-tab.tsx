@@ -1,6 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+
+function stripEmojis(str: string): string {
+  return str
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
+    .replace(/[☀-➿︀-️‍⃣]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -133,15 +141,15 @@ export function ContributionsTab() {
         startY: total > 0 ? 34 : 28,
         head: [["Name", "Method", "M-Pesa Ref", "Amount (KES)", "Status", "Date"]],
         body: fresh.map((c) => [
-          c.is_anonymous ? "Anonymous" : c.contributor,
+          stripEmojis(c.is_anonymous ? "Anonymous" : (c.contributor ?? "")),
           c.payment_method === "cash" ? "Cash" : "M-Pesa",
-          c.payment_method === "cash" ? "—" : (c.mpesa_ref ?? "—"),
+          c.payment_method === "cash" ? "—" : stripEmojis(c.mpesa_ref ?? "—"),
           c.amount != null ? c.amount.toLocaleString() : "—",
           c.confirmed ? "Confirmed" : "Pending",
           new Date(c.created_at).toLocaleDateString("en-KE"),
         ]),
         headStyles: { fillColor: [30, 30, 35], textColor: 255, fontStyle: "bold" },
-        styles: { fontSize: 8, font: "helvetica" },
+        styles: { fontSize: 8, font: "helvetica", overflow: "linebreak" },
         didDrawPage: (data) => {
           const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
           doc.setFontSize(7);
