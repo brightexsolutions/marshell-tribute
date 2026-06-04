@@ -79,6 +79,16 @@ const config: Config = {
           "0%, 60%, 100%": { transform: "scaleY(1)" },
           "80%":           { transform: "scaleY(1.06)" },
         },
+        "candle-pop": {
+          "0%":   { opacity: "0", transform: "scale(0.2) translateY(24px)" },
+          "55%":  { opacity: "1", transform: "scale(1.18) translateY(-5px)" },
+          "75%":  { transform: "scale(0.95) translateY(2px)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "candle-float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%":      { transform: "translateY(-3px)" },
+        },
       },
       animation: {
         flicker:        "flicker 2.1s ease-in-out infinite",
@@ -86,6 +96,8 @@ const config: Config = {
         "glow-pulse":   "glow-pulse 2.4s ease-in-out infinite",
         "fade-up":      "fade-up 0.7s ease-out forwards",
         drip:           "drip 3s ease-in-out infinite 1s",
+        "candle-pop":   "candle-pop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards",
+        "candle-float": "candle-float 3s ease-in-out infinite",
       },
     },
   },

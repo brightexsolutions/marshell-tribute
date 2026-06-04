@@ -1,13 +1,16 @@
 import { siteConfig } from "@/config/site";
 import { GalleryCarousel } from "./gallery-carousel";
+import { CandleLighting } from "./candle-lighting";
 import type { GalleryImage } from "@/config/images";
 
 interface AboutTabProps {
   bio: string;
   galleryImages: GalleryImage[];
+  burialDate: string | null;
+  displayName: string;
 }
 
-export function AboutTab({ bio, galleryImages }: AboutTabProps) {
+export function AboutTab({ bio, galleryImages, burialDate, displayName }: AboutTabProps) {
   const displayBio = bio || siteConfig.bio;
 
   return (
@@ -35,6 +38,14 @@ export function AboutTab({ bio, galleryImages }: AboutTabProps) {
           Gallery
         </h3>
         <GalleryCarousel images={galleryImages} />
+      </div>
+
+      {/* Virtual Candle Lighting */}
+      <div id="candle-section">
+        <h3 className="text-lg font-serif font-semibold text-foreground mb-3">
+          Light a Candle
+        </h3>
+        <CandleLighting burialDate={burialDate} displayName={displayName} />
       </div>
     </div>
   );

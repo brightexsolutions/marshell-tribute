@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Heart, BookOpen, HandHeart, X } from "lucide-react";
+import { Heart, BookOpen, HandHeart, Flame, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
@@ -16,7 +16,11 @@ interface TimeLeft {
 
 function parseBurialDate(raw: string): Date | null {
   const d = new Date(raw);
-  return isNaN(d.getTime()) ? null : d;
+  if (isNaN(d.getTime())) return null;
+  // Use LOCAL date components — "June 5, 2026" parses as local midnight, so
+  // getDate() gives 5 in EAT whereas getUTCDate() would give 4 (UTC shift)
+  // Target: 12:00 PM EAT = 09:00 UTC on burial day
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 9, 0, 0));
 }
 
 function getTimeLeft(target: Date): TimeLeft {
@@ -67,6 +71,7 @@ interface AnnouncementDialogProps {
   onLeaveTribute: () => void;
   onReadTributes: () => void;
   onSupport: () => void;
+  onLightCandle: () => void;
 }
 
 export function AnnouncementDialog({
@@ -76,6 +81,7 @@ export function AnnouncementDialog({
   onLeaveTribute,
   onReadTributes,
   onSupport,
+  onLightCandle,
 }: AnnouncementDialogProps) {
   const targetDate = useMemo(() => (burialDate ? parseBurialDate(burialDate) : null), [burialDate]);
   const [visible, setVisible] = useState(false);
@@ -121,6 +127,8 @@ export function AnnouncementDialog({
     if (timeLeft?.past) { notifyClosed(); return; }
     dismiss(); onSupport();
   }, [timeLeft?.past, dismiss, onSupport, notifyClosed]);
+
+  const handleLightCandle = useCallback(() => { dismiss(); onLightCandle(); }, [dismiss, onLightCandle]);
 
   if (!visible || !targetDate || !timeLeft) return null;
 
@@ -189,6 +197,9 @@ export function AnnouncementDialog({
             <p className="text-lg font-serif font-semibold leading-snug" style={{ color: "rgba(240,235,224,0.92)" }}>
               {formatBurialDate(targetDate)}
             </p>
+            <p className="text-sm font-sans font-medium" style={{ color: "rgba(251,191,36,0.85)" }}>
+              12:00 PM
+            </p>
           </div>
 
           {/* Countdown or thank you note */}
@@ -216,9 +227,17 @@ export function AnnouncementDialog({
           {/* Actions */}
           <div className="w-full space-y-2.5">
             {!timeLeft.past && (
-              <p className="text-xs font-sans" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Share your memories before the day
-              </p>
+              <div
+                className="rounded-lg px-3 py-2.5 text-center"
+                style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.18)" }}
+              >
+                <p className="text-xs font-sans font-medium" style={{ color: "rgba(251,191,36,0.9)" }}>
+                  Tribute submissions close at 12:00 PM tomorrow
+                </p>
+                <p className="text-[11px] font-sans mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  If you haven&apos;t left a tribute yet, this is your last chance.
+                </p>
+              </div>
             )}
 
             {/* Primary — Leave a Tribute */}
@@ -272,6 +291,22 @@ export function AnnouncementDialog({
                 </Button>
               )}
             </div>
+
+            {/* Light a Candle — always active */}
+            <Button
+              onClick={handleLightCandle}
+              className="w-full gap-2 font-sans text-sm"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                color: "rgba(255,255,255,0.55)",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.10)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              Light a Candle
+            </Button>
 
             {/* Closed notice — shown briefly after clicking a locked button */}
             <div

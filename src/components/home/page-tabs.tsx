@@ -116,7 +116,7 @@ export function PageTabs({
         </div>
 
         <TabsContent value="about" className="mt-0 focus-visible:outline-none">
-          <AboutTab bio={bio} galleryImages={galleryImages} />
+          <AboutTab bio={bio} galleryImages={galleryImages} burialDate={burialDate} displayName={displayName} />
         </TabsContent>
 
         <TabsContent value="tributes" className="mt-0 focus-visible:outline-none">
@@ -152,6 +152,12 @@ export function PageTabs({
         onLeaveTribute={openModal}
         onReadTributes={() => setActiveTab("tributes")}
         onSupport={() => setActiveTab("support")}
+        onLightCandle={() => {
+          setActiveTab("about");
+          setTimeout(() => {
+            document.getElementById("candle-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 120);
+        }}
       />
       <Fab onClick={openModal} />
     </>
